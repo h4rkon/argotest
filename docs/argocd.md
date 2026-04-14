@@ -1,0 +1,44 @@
+# Argo CD app of apps
+
+This repo contains a simple app-of-apps setup for Argo CD.
+
+## Layout
+
+- `argocd/root-application.yaml`: root application to bootstrap the child apps
+- `argocd/apps/develop`: child apps for the `develop` environment
+- `argocd/apps/main`: child apps for the `main` environment
+- `kubernetes/serviceA/base` and `kubernetes/serviceB/base`: shared manifests
+- `kubernetes/serviceA/overlays/*` and `kubernetes/serviceB/overlays/*`: environment-specific overlays
+
+## Namespace creation
+
+All child applications set:
+
+```yaml
+syncOptions:
+  - CreateNamespace=true
+```
+
+That allows Argo CD to create the destination namespace automatically if it does not already exist.
+
+Environment mapping:
+
+- `develop` Applications track the `develop` branch and deploy to the `develop` namespace
+- `main` Applications track the `main` branch and deploy to the `main` namespace
+
+## Images
+
+The overlays pin different rolling tags per environment:
+
+- `develop` uses `ghcr.io/h4rkon/servicea:develop-latest` and `ghcr.io/h4rkon/serviceb:develop-latest`
+- `main` uses `ghcr.io/h4rkon/servicea:latest` and `ghcr.io/h4rkon/serviceb:latest`
+
+## Bootstrap
+
+Apply the root app into the existing Argo CD installation:
+
+```bash
+kubectl apply -f argocd/root-application.yaml
+```
+
+With the current root app definition, Argo CD reads the app-of-apps structure from the `develop` branch and creates both environment groups.
