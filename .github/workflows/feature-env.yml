@@ -44,7 +44,7 @@ jobs:
 
       - name: Commit changes
         run: |
-          git add argocd/feature-apps
+          git add argocd/apps/feature-apps
           if git diff --cached --quiet; then
             echo "No changes to commit."
             exit 0
