@@ -71,3 +71,31 @@ URLs:
 - `http://localhost:18082/hello` for `serviceB` in `develop`
 - `http://localhost:18083/hello` for `serviceA` in `main`
 - `http://localhost:18084/hello` for `serviceB` in `main`
+
+## Feature branches
+
+Feature branches can be deployed as temporary environments via an ApplicationSet.
+This creates a namespace per branch and removes it when the branch is deleted.
+
+Branch matching:
+
+- `feature/*`
+
+Namespace:
+
+- uses the normalized branch name (slashes replaced and lowercased)
+
+Image tags:
+
+- Jira key extracted from the branch name, for example `OAS-1234-latest`
+
+The ApplicationSet definition is in:
+
+- `argocd/apps/feature-branches-appset.yaml`
+
+To enable it, create a GitHub token secret in `argocd`:
+
+```bash
+kubectl -n argocd create secret generic github-token \
+  --from-literal=token='<your_github_token>'
+```
