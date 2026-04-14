@@ -52,3 +52,13 @@ That builds:
 
 - `ghcr.io/<owner>/servicea:1.0.0`
 - `ghcr.io/<owner>/servicea:latest`
+
+## GitHub Actions tags
+
+The GitHub Actions workflow adds branch-aware tags on top of the base service version:
+
+- `main`: stable release tag, for example `1.0.0`
+- `develop`: prerelease tag, for example `1.0.0-develop.42`
+- `feature/OAS-1234`: feature tag, for example `1.0.0-OAS-1234.42`
+
+See `docs/github-actions.md` for the workflow behavior.
