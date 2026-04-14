@@ -1,7 +1,7 @@
 # Feature Branch Environments (Argo CD ApplicationSet)
 
-This repo can create a temporary namespace and Argo CD Applications for each feature pull request.
-When the PR is closed and the branch is deleted, Argo CD prunes the resources and the namespace disappears.
+This repo can create a temporary namespace and Argo CD Application per feature branch via a manual GitHub Action.
+When the branch is deleted, you remove the manifest and Argo CD prunes the resources and namespace.
 
 ## One-time setup
 
@@ -28,7 +28,7 @@ When the PR is closed and the branch is deleted, Argo CD prunes the resources an
    kubectl -n argocd get applicationsets
    ```
 
-## Per-feature flow (every new PR)
+## Per-feature flow (every new branch)
 
 1. Create a feature branch from `develop`:
    ```bash
@@ -47,8 +47,10 @@ When the PR is closed and the branch is deleted, Argo CD prunes the resources an
    This produces image tags like:
    - `ghcr.io/h4rkon/servicea:OAS-1234-latest`
    - `ghcr.io/h4rkon/serviceb:OAS-1234-latest`
-4. Open a PR from `feature/OAS-1234` to `develop` and add the `preview` label.
-   The ApplicationSet only creates environments for PRs with that label.
+4. Run the `Feature Environment` workflow:
+   - `action`: `create`
+   - `branch`: `feature/OAS-1234`
+   This writes an app manifest under `argocd/feature-apps` on `develop`.
 5. Argo CD creates a namespace and app automatically.
    Check:
    ```bash
@@ -70,17 +72,20 @@ Example:
 
 ## Cleanup
 
-1. Close the PR and delete the feature branch:
+1. Delete the feature branch:
    ```bash
    git push origin --delete feature/OAS-1234
    ```
-2. Argo CD removes the Application and prunes the namespace automatically.
+2. Run the `Feature Environment` workflow with:
+   - `action`: `delete`
+   - `branch`: `feature/OAS-1234`
+3. Argo CD removes the Application and prunes the namespace automatically.
 
 ## Troubleshooting
 
 If no feature apps appear:
 
-1. Check the ApplicationSet exists:
+1. Check the app manifest exists on `develop` under `argocd/feature-apps`.
    ```bash
    kubectl -n argocd get applicationsets
    ```
