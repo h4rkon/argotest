@@ -25,7 +25,7 @@ const namespace = normalize(branch);
 const appName = `feature-${normalize(jiraKey)}`;
 
 const repoRoot = path.resolve(__dirname, '..');
-const appsDir = path.join(repoRoot, 'argocd', 'feature-apps');
+const appsDir = path.join(repoRoot, 'argocd', 'apps', 'feature-apps');
 const appPath = path.join(appsDir, `${appName}.yaml`);
 
 if (action === 'delete') {

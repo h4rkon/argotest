@@ -50,7 +50,7 @@ When the branch is deleted, you remove the manifest and Argo CD prunes the resou
 4. Run the `Feature Environment` workflow:
    - `action`: `create`
    - `branch`: `feature/OAS-1234`
-   This writes an app manifest under `argocd/feature-apps` on `develop`.
+   This writes an app manifest under `argocd/apps/feature-apps` on `develop`.
 5. Argo CD creates a namespace and app automatically.
    Check:
    ```bash
@@ -85,7 +85,7 @@ Example:
 
 If no feature apps appear:
 
-1. Check the app manifest exists on `develop` under `argocd/feature-apps`.
+1. Check the app manifest exists on `develop` under `argocd/apps/feature-apps`.
    ```bash
    kubectl -n argocd get applicationsets
    ```
