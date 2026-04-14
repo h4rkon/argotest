@@ -3,6 +3,7 @@ kind: Kustomization
 namespace: develop
 resources:
   - ../../base
+  - ingress.yaml
 images:
   - name: ghcr.io/h4rkon/serviceb
     newTag: develop-latest

@@ -3,6 +3,7 @@ kind: Kustomization
 namespace: main
 resources:
   - ../../base
+  - ingress.yaml
 images:
   - name: ghcr.io/h4rkon/serviceb
     newTag: latest
