@@ -25,10 +25,8 @@ spec:
         path: kubernetes/feature
         kustomize:
           images:
-            - name: ghcr.io/h4rkon/servicea
-              newTag: '{{ regexFind "[A-Z]+-[0-9]+" .branch }}-latest'
-            - name: ghcr.io/h4rkon/serviceb
-              newTag: '{{ regexFind "[A-Z]+-[0-9]+" .branch }}-latest'
+            - 'ghcr.io/h4rkon/servicea:{{ regexFind "[A-Z]+-[0-9]+" .branch }}-latest'
+            - 'ghcr.io/h4rkon/serviceb:{{ regexFind "[A-Z]+-[0-9]+" .branch }}-latest'
       destination:
         server: https://kubernetes.default.svc
         namespace: '{{ .branchNormalized }}'
