@@ -1,0 +1,24 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: feature-oas-4714
+  namespace: argocd
+spec:
+  project: default
+  source:
+    repoURL: https://github.com/h4rkon/argotest.git
+    targetRevision: feature/OAS-4714
+    path: kubernetes/feature
+    kustomize:
+      images:
+        - ghcr.io/h4rkon/servicea:OAS-4714-latest
+        - ghcr.io/h4rkon/serviceb:OAS-4714-latest
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: feature-oas-4714
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+    syncOptions:
+      - CreateNamespace=true
