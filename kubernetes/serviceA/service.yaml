@@ -1,0 +1,14 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: servicea
+  namespace: develop
+  labels:
+    app: servicea
+spec:
+  selector:
+    app: servicea
+  ports:
+    - name: http
+      port: 80
+      targetPort: 3000
