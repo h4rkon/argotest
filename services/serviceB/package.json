@@ -5,7 +5,11 @@
   "description": "Simple demo service B",
   "main": "src/server.js",
   "scripts": {
-    "start": "node src/server.js"
+    "start": "node src/server.js",
+    "version:patch": "npm version patch --no-git-tag-version",
+    "version:minor": "npm version minor --no-git-tag-version",
+    "version:major": "npm version major --no-git-tag-version",
+    "image:build": "node ../../scripts/build-image.js serviceB"
   },
   "engines": {
     "node": ">=20"
