@@ -1,0 +1,58 @@
+name: Feature Environment
+
+on:
+  workflow_dispatch:
+    inputs:
+      action:
+        description: Create or delete the feature environment
+        required: true
+        type: choice
+        options:
+          - create
+          - delete
+      branch:
+        description: Feature branch name (e.g. feature/OAS-4713)
+        required: true
+        type: string
+
+permissions:
+  contents: write
+
+jobs:
+  manage:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout develop
+        uses: actions/checkout@v4
+        with:
+          ref: develop
+          fetch-depth: 0
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Generate app manifest
+        run: |
+          node scripts/manage-feature-app.js "${{ inputs.action }}" "${{ inputs.branch }}"
+
+      - name: Configure git
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+
+      - name: Commit changes
+        run: |
+          git add argocd/feature-apps
+          if git diff --cached --quiet; then
+            echo "No changes to commit."
+            exit 0
+          fi
+          git commit -m "chore: ${{
+            inputs.action
+          }} feature env for ${{ inputs.branch }}"
+
+      - name: Push to develop
+        run: |
+          git push origin HEAD:develop
