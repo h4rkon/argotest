@@ -33,6 +33,17 @@ The overlays pin different rolling tags per environment:
 - `develop` uses `ghcr.io/h4rkon/servicea:develop-latest` and `ghcr.io/h4rkon/serviceb:develop-latest`
 - `main` uses `ghcr.io/h4rkon/servicea:latest` and `ghcr.io/h4rkon/serviceb:latest`
 
+## Access
+
+Each overlay also creates an Ingress for the existing `ingress-nginx` controller in Colima.
+
+Expected URLs:
+
+- `http://servicea-develop.192.168.5.1.sslip.io/hello`
+- `http://serviceb-develop.192.168.5.1.sslip.io/hello`
+- `http://servicea-main.192.168.5.1.sslip.io/hello`
+- `http://serviceb-main.192.168.5.1.sslip.io/hello`
+
 ## Bootstrap
 
 Apply the root app into the existing Argo CD installation:
