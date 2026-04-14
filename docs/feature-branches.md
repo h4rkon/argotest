@@ -1,7 +1,7 @@
 # Feature Branch Environments (Argo CD ApplicationSet)
 
-This repo can create a temporary namespace and Argo CD Applications for each `feature/*` branch.
-When the branch is deleted, Argo CD prunes the resources and the namespace disappears.
+This repo can create a temporary namespace and Argo CD Applications for each feature pull request.
+When the PR is closed and the branch is deleted, Argo CD prunes the resources and the namespace disappears.
 
 ## One-time setup
 
@@ -28,7 +28,7 @@ When the branch is deleted, Argo CD prunes the resources and the namespace disap
    kubectl -n argocd get applicationsets
    ```
 
-## Per-feature flow (every new branch)
+## Per-feature flow (every new PR)
 
 1. Create a feature branch from `develop`:
    ```bash
@@ -47,13 +47,15 @@ When the branch is deleted, Argo CD prunes the resources and the namespace disap
    This produces image tags like:
    - `ghcr.io/h4rkon/servicea:OAS-1234-latest`
    - `ghcr.io/h4rkon/serviceb:OAS-1234-latest`
-4. Argo CD creates a namespace and app automatically.
+4. Open a PR from `feature/OAS-1234` to `develop` and add the `preview` label.
+   The ApplicationSet only creates environments for PRs with that label.
+5. Argo CD creates a namespace and app automatically.
    Check:
    ```bash
    kubectl -n argocd get applications | grep feature
    kubectl get ns | grep feature
    ```
-5. Verify workloads:
+6. Verify workloads:
    ```bash
    kubectl -n feature-oas-1234 get deploy,svc,pods
    ```
@@ -68,7 +70,7 @@ Example:
 
 ## Cleanup
 
-1. Delete the feature branch:
+1. Close the PR and delete the feature branch:
    ```bash
    git push origin --delete feature/OAS-1234
    ```

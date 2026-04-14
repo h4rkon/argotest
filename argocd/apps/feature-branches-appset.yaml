@@ -6,14 +6,15 @@ metadata:
 spec:
   goTemplate: true
   generators:
-    - github:
-        owner: h4rkon
-        repo: argotest
-        tokenRef:
-          secretName: github-token
-          key: token
-        filters:
-          - branchMatch: '^feature/.*$'
+    - pullRequest:
+        github:
+          owner: h4rkon
+          repo: argotest
+          tokenRef:
+            secretName: github-token
+            key: token
+          labels:
+            - preview
   template:
     metadata:
       name: '{{ .branchNormalized }}-services'
