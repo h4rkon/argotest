@@ -53,3 +53,21 @@ kubectl apply -f argocd/root-application.yaml
 ```
 
 With the current root app definition, Argo CD reads the app-of-apps structure from the `develop` branch and creates both environment groups.
+
+## Port forward
+
+For reliable local access in Colima, use the repo Makefile:
+
+```bash
+make port-forward-open
+make port-forward-check
+make call-services
+make port-forward-close
+```
+
+URLs:
+
+- `http://localhost:18081/hello` for `serviceA` in `develop`
+- `http://localhost:18082/hello` for `serviceB` in `develop`
+- `http://localhost:18083/hello` for `serviceA` in `main`
+- `http://localhost:18084/hello` for `serviceB` in `main`
