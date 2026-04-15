@@ -1,6 +1,6 @@
 PORT_FORWARD_DIR := .port-forward
 
-.PHONY: port-forward-open port-forward-check port-forward-close call-services
+.PHONY: port-forward-open port-forward-check port-forward-close call-services feature-open feature-check feature-close
 
 port-forward-open:
 	mkdir -p $(PORT_FORWARD_DIR)
@@ -57,6 +57,30 @@ call-services:
 	@echo "servicea-main     -> $$(curl -fsS http://localhost:18083/hello || echo 'request failed')"
 	@echo "serviceb-main     -> $$(curl -fsS http://localhost:18084/hello || echo 'request failed')"
 
+FEATURE_NS ?= feature-oas-4714
+FEATURE_PORT_A ?= 28085
+FEATURE_PORT_B ?= 28086
+
+feature-open:
+	@$(MAKE) _start-port-forward NAME=feature-servicea NAMESPACE=$(FEATURE_NS) SERVICE=servicea LOCAL_PORT=$(FEATURE_PORT_A)
+	@$(MAKE) _start-port-forward NAME=feature-serviceb NAMESPACE=$(FEATURE_NS) SERVICE=serviceb LOCAL_PORT=$(FEATURE_PORT_B)
+	@$(MAKE) feature-check
+
+feature-check:
+	@$(MAKE) _check-port-forward NAME=feature-servicea LOCAL_PORT=$(FEATURE_PORT_A)
+	@$(MAKE) _check-port-forward NAME=feature-serviceb LOCAL_PORT=$(FEATURE_PORT_B)
+	@echo "Feature URLs (namespace $(FEATURE_NS)):"
+	@echo "  http://localhost:$(FEATURE_PORT_A)/hello"
+	@echo "  http://localhost:$(FEATURE_PORT_B)/hello"
+
+feature-close:
+	@$(MAKE) _stop-port-forward NAME=feature-servicea
+	@$(MAKE) _stop-port-forward NAME=feature-serviceb
+
+call-feature:
+	@echo "servicea-feature  -> $$(curl -fsS http://localhost:28085/hello || echo 'request failed')"
+	@echo "serviceb-feature  -> $$(curl -fsS http://localhost:28086/hello || echo 'request failed')"
+	
 _stop-port-forward:
 	@if [ -f "$(PORT_FORWARD_DIR)/$(NAME).pid" ]; then \
 		pid="$$(cat "$(PORT_FORWARD_DIR)/$(NAME).pid")"; \
