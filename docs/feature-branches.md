@@ -64,6 +64,22 @@ When the feature files are removed, Argo CD prunes the namespace and its resourc
    make feature-check FEATURE_NS=feature-oas-1234
    ```
 
+## Update one service in a feature environment
+
+Once the feature environment exists, you can update a single service image without recreating the environment.
+
+Run the `Update Feature Environment` workflow with:
+
+- `branch`: `feature/OAS-1234`
+- `service`: `servicea` or `serviceb`
+- `image_tag`: for example `OAS-1234-latest` or `1.0.0-OAS-1234.27`
+
+This updates only that service inside:
+
+- `environments/feature-oas-1234/values.yaml`
+
+Argo CD then syncs the changed image into the running feature environment.
+
 ## Namespace naming
 
 Kubernetes namespaces cannot contain `/`, so the branch name is normalized.
@@ -103,4 +119,8 @@ If no feature apps appear:
 4. Check the namespace and workloads:
    ```bash
    kubectl -n feature-oas-1234 get deploy,svc,pods
+   ```
+5. Check the feature values file if a single-service update did not apply:
+   ```bash
+   sed -n '1,200p' environments/feature-oas-1234/values.yaml
    ```
