@@ -83,6 +83,21 @@ URLs:
 - `http://localhost:18083/hello` for `serviceA` in `main`
 - `http://localhost:18084/hello` for `serviceB` in `main`
 
+Feature environments require an explicit namespace when port-forwarding:
+
+```bash
+FEATURE_NAME=feature-oas-4715 make feature-open
+FEATURE_NAME=feature-oas-4715 make feature-check
+FEATURE_NAME=feature-oas-4715 make call-feature
+FEATURE_NAME=feature-oas-4715 make feature-close
+```
+
+Optional port override:
+
+```bash
+FEATURE_NAME=feature-oas-4715 FEATURE_PORT_A=19085 FEATURE_PORT_B=19086 make feature-open
+```
+
 ## Feature environments
 
 Feature environments are created manually through the workflow in `.github/workflows/feature-env.yml`.
