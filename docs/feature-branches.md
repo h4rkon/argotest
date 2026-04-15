@@ -1,31 +1,25 @@
-# Feature Branch Environments (Argo CD ApplicationSet)
+# Feature Branch Environments
 
-This repo can create a temporary namespace and Argo CD Application per feature branch via a manual GitHub Action.
-When the branch is deleted, you remove the manifest and Argo CD prunes the resources and namespace.
+This repo creates temporary feature environments through a manual GitHub Action.
+The workflow writes or removes generated Argo CD `Application` manifests under `argocd/apps/feature-apps`.
+When a feature app manifest is removed, Argo CD prunes the namespace and its resources.
 
 ## One-time setup
 
 1. Commit and push these files to `develop`:
-   - `argocd/apps/feature-branches-appset.yaml`
+   - `.github/workflows/feature-env.yml`
+   - `argocd/apps/feature-apps/.gitkeep`
    - `kubernetes/feature/kustomization.yaml`
-2. Ensure the ApplicationSet CRD exists:
-   ```bash
-   kubectl get crd applicationsets.argoproj.io
-   ```
-3. Create the GitHub token secret in `argocd`:
-   ```bash
-   kubectl -n argocd create secret generic github-token \
-     --from-literal=token='<your_github_token>'
-   ```
-4. Refresh the root app so it picks up the ApplicationSet:
+   - `scripts/manage-feature-app.js`
+2. Refresh the root app so it picks up feature apps from Git:
    ```bash
    kubectl -n argocd patch application argotest-root \
      -p '{"metadata":{"annotations":{"argocd.argoproj.io/refresh":"hard"}}}' \
      --type merge
    ```
-5. Verify the ApplicationSet is present:
+3. Verify the root app is healthy:
    ```bash
-   kubectl -n argocd get applicationsets
+   kubectl -n argocd get application argotest-root
    ```
 
 ## Per-feature flow (every new branch)
@@ -61,6 +55,11 @@ When the branch is deleted, you remove the manifest and Argo CD prunes the resou
    ```bash
    kubectl -n feature-oas-1234 get deploy,svc,pods
    ```
+7. Optional local access:
+   ```bash
+   make feature-open FEATURE_NS=feature-oas-1234
+   make feature-check FEATURE_NS=feature-oas-1234
+   ```
 
 ## Namespace naming
 
@@ -87,10 +86,17 @@ If no feature apps appear:
 
 1. Check the app manifest exists on `develop` under `argocd/apps/feature-apps`.
    ```bash
-   kubectl -n argocd get applicationsets
+   ls argocd/apps/feature-apps
    ```
-2. Check the ApplicationSet controller logs:
+2. Check that the generated app exists in Argo CD:
    ```bash
-   kubectl -n argocd logs deploy/argocd-applicationset-controller --tail=100
+   kubectl -n argocd get applications | grep feature
    ```
-3. Confirm at least one `feature/*` branch exists on GitHub.
+3. Check the generated app directly:
+   ```bash
+   kubectl -n argocd get application feature-oas-1234
+   ```
+4. Check the namespace and workloads:
+   ```bash
+   kubectl -n feature-oas-1234 get deploy,svc,pods
+   ```

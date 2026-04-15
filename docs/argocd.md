@@ -6,6 +6,7 @@ This repo contains a simple app-of-apps setup for Argo CD.
 
 - `argocd/root-application.yaml`: root application to bootstrap the child apps
 - `argocd/apps/develop/environment-application.yaml`: Argo CD app for the `develop` environment
+- `argocd/apps/feature-apps`: generated feature environment apps
 - `argocd/apps/main/environment-application.yaml`: Argo CD app for the `main` environment
 - `helm/argotest-environment`: shared Helm chart for all environment deployments
 - `environments/develop/values.yaml` and `environments/main/values.yaml`: explicit environment image state
@@ -24,6 +25,7 @@ That allows Argo CD to create the destination namespace automatically if it does
 Environment mapping:
 
 - `develop-environment` tracks the `develop` branch and deploys to the `develop` namespace
+- feature environment apps track their own feature branch and deploy to a normalized feature namespace such as `feature-oas-4714`
 - `main-environment` tracks the `main` branch and deploys to the `main` namespace
 
 ## Images
@@ -33,7 +35,12 @@ The environment values files define the exact image state:
 - `environments/develop/values.yaml` uses `develop-latest`
 - `environments/main/values.yaml` uses `latest`
 
-This is the baseline for later feature environments, where a feature values file can start as a copy of `develop` and then override only the services built for that feature branch.
+This is the baseline for the next feature-environment iteration, where a feature values file can start as a copy of `develop` and then override only the services built for that feature branch.
+
+The current feature environment flow is simpler:
+
+- the `Feature Environment` GitHub Actions workflow writes an Argo CD `Application` into `argocd/apps/feature-apps`
+- that feature app points at the feature branch and overrides the service image tags to `<JIRA>-latest`
 
 ## Access
 
@@ -74,30 +81,34 @@ URLs:
 - `http://localhost:18083/hello` for `serviceA` in `main`
 - `http://localhost:18084/hello` for `serviceB` in `main`
 
-## Feature branches
+## Feature environments
 
-Feature branches can be deployed as temporary environments via an ApplicationSet.
-This creates a namespace per branch and removes it when the branch is deleted.
+Feature environments are created manually through the workflow in `.github/workflows/feature-env.yml`.
 
-Branch matching:
+Flow:
 
-- `feature/*`
+1. Push a feature branch such as `feature/OAS-4714`
+2. Run `Build Images` on that branch so `OAS-4714-latest` exists for the services you need
+3. Run `Feature Environment` with:
+   - `action = create`
+   - `branch = feature/OAS-4714`
+4. The workflow commits a generated app manifest to `argocd/apps/feature-apps`
+5. Argo CD creates namespace `feature-oas-4714` and deploys the feature app
 
-Namespace:
+Cleanup:
 
-- uses the normalized branch name (slashes replaced and lowercased)
+1. Delete the feature branch
+2. Run `Feature Environment` with:
+   - `action = delete`
+   - `branch = feature/OAS-4714`
+3. Argo CD prunes the app and namespace
 
-Image tags:
+## Current state model
 
-- Jira key extracted from the branch name, for example `OAS-1234-latest`
+`develop` and `main` are now single environment apps backed by explicit values files, not four separate hardcoded service apps.
 
-The ApplicationSet definition is in:
+That matters because it gives you a clear base state for later preview logic:
 
-- `argocd/apps/feature-branches-appset.yaml`
-
-To enable it, create a GitHub token secret in `argocd`:
-
-```bash
-kubectl -n argocd create secret generic github-token \
-  --from-literal=token='<your_github_token>'
-```
+- copy the current `develop` state
+- override only the services that have a matching feature build
+- leave all other services on the copied `develop` versions
