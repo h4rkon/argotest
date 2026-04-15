@@ -7,7 +7,7 @@ const host = '0.0.0.0';
 const server = http.createServer((req, res) => {
   if (req.method === 'GET' && req.url === '/hello') {
     res.writeHead(200, { 'Content-Type': 'text/plain; charset=utf-8' });
-    res.end(`hello world from serviceA feature OAS-1234 v${packageJson.version}`);
+    res.end(`hello world from serviceA feature branch v${packageJson.version}`);
     return;
   }
 
