@@ -1,17 +1,20 @@
 apiVersion: argoproj.io/v1alpha1
 kind: Application
 metadata:
-  name: servicea-develop
+  name: main-environment
   namespace: argocd
 spec:
   project: default
   source:
     repoURL: https://github.com/h4rkon/argotest.git
-    targetRevision: develop
-    path: kubernetes/serviceA/overlays/develop
+    targetRevision: main
+    path: helm/argotest-environment
+    helm:
+      valueFiles:
+        - ../../environments/main/values.yaml
   destination:
     server: https://kubernetes.default.svc
-    namespace: develop
+    namespace: main
   syncPolicy:
     automated:
       prune: true

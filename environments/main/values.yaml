@@ -1,0 +1,26 @@
+namespace: main
+services:
+  servicea:
+    enabled: true
+    image:
+      repository: ghcr.io/h4rkon/servicea
+      tag: latest
+    service:
+      port: 80
+      targetPort: 3000
+    ingress:
+      enabled: true
+      className: nginx
+      host: servicea-main.192.168.5.1.sslip.io
+  serviceb:
+    enabled: true
+    image:
+      repository: ghcr.io/h4rkon/serviceb
+      tag: latest
+    service:
+      port: 80
+      targetPort: 3000
+    ingress:
+      enabled: true
+      className: nginx
+      host: serviceb-main.192.168.5.1.sslip.io

@@ -5,10 +5,10 @@ This repo contains a simple app-of-apps setup for Argo CD.
 ## Layout
 
 - `argocd/root-application.yaml`: root application to bootstrap the child apps
-- `argocd/apps/develop`: child apps for the `develop` environment
-- `argocd/apps/main`: child apps for the `main` environment
-- `kubernetes/serviceA/base` and `kubernetes/serviceB/base`: shared manifests
-- `kubernetes/serviceA/overlays/*` and `kubernetes/serviceB/overlays/*`: environment-specific overlays
+- `argocd/apps/develop/environment-application.yaml`: Argo CD app for the `develop` environment
+- `argocd/apps/main/environment-application.yaml`: Argo CD app for the `main` environment
+- `helm/argotest-environment`: shared Helm chart for all environment deployments
+- `environments/develop/values.yaml` and `environments/main/values.yaml`: explicit environment image state
 
 ## Namespace creation
 
@@ -23,15 +23,17 @@ That allows Argo CD to create the destination namespace automatically if it does
 
 Environment mapping:
 
-- `develop` Applications track the `develop` branch and deploy to the `develop` namespace
-- `main` Applications track the `main` branch and deploy to the `main` namespace
+- `develop-environment` tracks the `develop` branch and deploys to the `develop` namespace
+- `main-environment` tracks the `main` branch and deploys to the `main` namespace
 
 ## Images
 
-The overlays pin different rolling tags per environment:
+The environment values files define the exact image state:
 
-- `develop` uses `ghcr.io/h4rkon/servicea:develop-latest` and `ghcr.io/h4rkon/serviceb:develop-latest`
-- `main` uses `ghcr.io/h4rkon/servicea:latest` and `ghcr.io/h4rkon/serviceb:latest`
+- `environments/develop/values.yaml` uses `develop-latest`
+- `environments/main/values.yaml` uses `latest`
+
+This is the baseline for later feature environments, where a feature values file can start as a copy of `develop` and then override only the services built for that feature branch.
 
 ## Access
 
