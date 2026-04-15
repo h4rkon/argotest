@@ -33,7 +33,7 @@ jobs:
         with:
           node-version: '20'
 
-      - name: Generate app manifest
+      - name: Generate feature environment files
         run: |
           node scripts/manage-feature-app.js "${{ inputs.action }}" "${{ inputs.branch }}"
 
@@ -44,7 +44,7 @@ jobs:
 
       - name: Commit changes
         run: |
-          git add argocd/apps/feature-apps
+          git add -A argocd/apps/feature-apps environments
           if git diff --cached --quiet; then
             echo "No changes to commit."
             exit 0

@@ -37,10 +37,12 @@ The environment values files define the exact image state:
 
 This is the baseline for the next feature-environment iteration, where a feature values file can start as a copy of `develop` and then override only the services built for that feature branch.
 
-The current feature environment flow is simpler:
+The current feature environment flow now works from a copied develop state:
 
-- the `Feature Environment` GitHub Actions workflow writes an Argo CD `Application` into `argocd/apps/feature-apps`
-- that feature app points at the feature branch and overrides the service image tags to `<JIRA>-latest`
+- the `Feature Environment` GitHub Actions workflow copies `environments/develop/values.yaml`
+- it writes the copy to `environments/feature-oas-4714/values.yaml` with only the namespace changed
+- it generates an Argo CD `Application` in `argocd/apps/feature-apps`
+- that feature app tracks `develop` and reads the generated feature values file
 
 ## Access
 
@@ -92,8 +94,10 @@ Flow:
 3. Run `Feature Environment` with:
    - `action = create`
    - `branch = feature/OAS-4714`
-4. The workflow commits a generated app manifest to `argocd/apps/feature-apps`
-5. Argo CD creates namespace `feature-oas-4714` and deploys the feature app
+4. The workflow commits:
+   - `environments/feature-oas-4714/values.yaml`
+   - `argocd/apps/feature-apps/feature-oas-4714.yaml`
+5. Argo CD creates namespace `feature-oas-4714` and deploys the feature app from the copied develop values
 
 Cleanup:
 
@@ -109,6 +113,6 @@ Cleanup:
 
 That matters because it gives you a clear base state for later preview logic:
 
-- copy the current `develop` state
+- copy the current `develop` state into a feature values file
 - override only the services that have a matching feature build
 - leave all other services on the copied `develop` versions

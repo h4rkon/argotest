@@ -1,15 +1,15 @@
 # Feature Branch Environments
 
 This repo creates temporary feature environments through a manual GitHub Action.
-The workflow writes or removes generated Argo CD `Application` manifests under `argocd/apps/feature-apps`.
-When a feature app manifest is removed, Argo CD prunes the namespace and its resources.
+The workflow copies `environments/develop/values.yaml` into a feature-specific values file, then writes or removes a generated Argo CD `Application` manifest under `argocd/apps/feature-apps`.
+When the feature files are removed, Argo CD prunes the namespace and its resources.
 
 ## One-time setup
 
 1. Commit and push these files to `develop`:
    - `.github/workflows/feature-env.yml`
    - `argocd/apps/feature-apps/.gitkeep`
-   - `kubernetes/feature/kustomization.yaml`
+   - `environments/develop/values.yaml`
    - `scripts/manage-feature-app.js`
 2. Refresh the root app so it picks up feature apps from Git:
    ```bash
@@ -44,7 +44,10 @@ When a feature app manifest is removed, Argo CD prunes the namespace and its res
 4. Run the `Feature Environment` workflow:
    - `action`: `create`
    - `branch`: `feature/OAS-1234`
-   This writes an app manifest under `argocd/apps/feature-apps` on `develop`.
+   This writes:
+   - `environments/feature-oas-1234/values.yaml`
+   - `argocd/apps/feature-apps/feature-oas-1234.yaml`
+   on `develop`.
 5. Argo CD creates a namespace and app automatically.
    Check:
    ```bash
@@ -84,9 +87,10 @@ Example:
 
 If no feature apps appear:
 
-1. Check the app manifest exists on `develop` under `argocd/apps/feature-apps`.
+1. Check the generated files exist on `develop`:
    ```bash
    ls argocd/apps/feature-apps
+   ls environments/feature-oas-1234
    ```
 2. Check that the generated app exists in Argo CD:
    ```bash
