@@ -1,6 +1,6 @@
 {
   "name": "service-a",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "private": true,
   "description": "Simple demo service A",
   "main": "src/server.js",
